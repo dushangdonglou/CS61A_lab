@@ -1,3 +1,6 @@
+import math
+
+
 def convert_link(link):
     """Takes a linked list and returns a Python list with the same elements.
 
@@ -8,6 +11,13 @@ def convert_link(link):
     []
     """
     "*** YOUR CODE HERE ***"
+    pylist = []
+    while link is not Link.empty:
+        pylist.append(link.first)
+        link = link.rest
+    return pylist
+
+
 
 
 def cumulative_mul(t):
@@ -20,6 +30,10 @@ def cumulative_mul(t):
     Tree(105, [Tree(15, [Tree(5)]), Tree(7)])
     """
     "*** YOUR CODE HERE ***"
+    if not t.is_leaf():
+        for i in t.branches:
+            cumulative_mul(i)
+            t.label *= i.label
 
 
 def has_cycle(link):
@@ -37,6 +51,22 @@ def has_cycle(link):
     False
     """
     "*** YOUR CODE HERE ***"
+    # 快慢指针
+    if link is Link.empty: # 防止原链表是空导致报错
+        return False
+    else:
+        slow = link
+        fast = link.rest
+        while True:
+            if fast is Link.empty:
+                return False
+            slow = slow.rest
+            fast = fast.rest.rest  # 若为空则为empty
+            if slow is fast:
+                return True
+
+
+
 
 
 def has_cycle_constant(link):
@@ -51,6 +81,17 @@ def has_cycle_constant(link):
     False
     """
     "*** YOUR CODE HERE ***"
+    # 首尾相等
+    if link is Link.empty: # 防止原链表是空导致报错
+        return False
+    else:
+        first = link
+        while True:
+            if link is Link.empty:
+                return False
+            link = link.rest
+            if link is first:
+                return True
 
 
 def every_other(s):
