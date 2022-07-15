@@ -137,12 +137,12 @@ def reverse_other(t):
     def reverse(t, need):
         if t.is_leaf():
             return
-        new_labs = [i.label for i in t.branches]
+        new_lab = [i.label for i in t.branches]
         for i in range(len(t.branches)):
             reverse(t.branches[i], not need)
             if need:
-                t.branches[i].label = new_labs[-1-i]
-    reverse(t, True)
+                t.branches[i].label = new_lab[-1-i]
+    reverse(t, need=True)
 
 class Link:
     """A linked list.
