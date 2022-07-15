@@ -112,6 +112,12 @@ def every_other(s):
     Link(4)
     """
     "*** YOUR CODE HERE ***"
+    # 尾递归
+    if s is Link.empty or s.rest is Link.empty:
+        return
+    else:
+        s.rest = s.rest.rest
+        every_other(s.rest)
 
 
 def reverse_other(t):
@@ -128,7 +134,15 @@ def reverse_other(t):
     Tree(1, [Tree(8, [Tree(3, [Tree(5), Tree(4)]), Tree(6, [Tree(7)])]), Tree(2)])
     """
     "*** YOUR CODE HERE ***"
-
+    def reverse(t, need):
+        if t.is_leaf():
+            return
+        new_labs = [i.label for i in t.branches]
+        for i in range(len(t.branches)):
+            reverse(t.branches[i], not need)
+            if need:
+                t.branches[i].label = new_labs[-1-i]
+    reverse(t, True)
 
 class Link:
     """A linked list.
