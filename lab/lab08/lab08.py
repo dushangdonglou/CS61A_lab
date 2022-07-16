@@ -8,6 +8,11 @@ def insert_into_all(item, nested_list):
     [[0], [0, 1, 2], [0, 3]]
     """
     "*** YOUR CODE HERE ***"
+    result = []
+    for l in nested_list:
+        l.insert(0, item)
+        result.append(l)
+    return result
 
 
 def subseqs(s):
@@ -20,11 +25,30 @@ def subseqs(s):
     >>> subseqs([])
     [[]]
     """
-    if ________________:
-        ________________
+    # 组合
+    def combine(n, k):
+        result = []
+        path = []
+        def back(n, k, start):
+            if k == len(path):
+                result.append(path[:])
+                return
+            for i in range(start, n - (k - len(path)) + 2): #剪枝
+                path.append(i) # 入栈
+                back(n, k, i + 1)
+                path.pop() # 出栈
+        back(n, k, 1)
+        return result
+    result = []
+    lens = len(s)
+    if lens == 0:
+        result.append([])
+        return result
     else:
-        ________________
-        ________________
+        result.append([])
+        for i in range(1, lens+1):
+            result.extend(combine(lens, i))
+    return result
 
 
 def non_decrease_subseqs(s):
@@ -43,7 +67,7 @@ def non_decrease_subseqs(s):
     """
     def subseq_helper(s, prev):
         if not s:
-            return ____________________
+            return [[]]
         elif s[0] < prev:
             return ____________________
         else:
