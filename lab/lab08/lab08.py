@@ -120,7 +120,26 @@ def merge(incr_a, incr_b):
     iter_a, iter_b = iter(incr_a), iter(incr_b)
     next_a, next_b = next(iter_a, None), next(iter_b, None)
     "*** YOUR CODE HERE ***"
-
+    while True:
+        if next_a != None and next_b != None:
+            if next_a > next_b:
+                yield next_b
+                next_b = next(iter_b, None)
+            elif next_a < next_b:
+                yield next_a
+                next_a = next(iter_a, None)
+            else:
+                yield next_a
+                next_a = next(iter_a, None)
+                next_b = next(iter_b, None)
+        elif next_a and not next_b:
+            yield next_a
+            next_a = next(iter_a, None)
+        elif next_b and not next_a:
+            yield next_b
+            next_b = next(iter_b, None)
+        else:
+            break
 
 class Button:
     """
@@ -160,26 +179,28 @@ class Keyboard:
     """
 
     def __init__(self, *args):
-        ________________
-        for _________ in ________________:
-            ________________
+        self.buttons = []
+        for b in args:
+            self.buttons.append(b)
 
     def press(self, info):
         """Takes in a position of the button pressed, and
         returns that button's output"""
-        if ____________________:
-            ________________
-            ________________
-            ________________
-        ________________
+        if self.buttons:
+            for b in self.buttons:
+                if b.pos == info:
+                    b.times_pressed += 1
+                    return b.key
+        return ''
 
     def typing(self, typing_input):
         """Takes in a list of positions of buttons pressed, and
         returns the total output"""
-        ________________
-        for ________ in ____________________:
-            ________________
-        ________________
+        result = ''
+        for i in typing_input:
+             result += self.buttons[i].key
+             self.buttons[i].times_pressed += 1
+        return result
 
 
 class Account:
@@ -210,24 +231,37 @@ class Account:
         self.balance = 0
         self.holder = account_holder
         "*** YOUR CODE HERE ***"
+        self.transactions = []
+        self._deposit = 0
+        self._withdraw = 0
 
     def deposit(self, amount):
         """Increase the account balance by amount, add the deposit
         to the transaction history, and return the new balance.
         """
         "*** YOUR CODE HERE ***"
+        self.balance += amount
+        self.transactions.append(('deposit', amount))
+        self._deposit += 1
+        return self.balance
 
     def withdraw(self, amount):
         """Decrease the account balance by amount, add the withdraw
         to the transaction history, and return the new balance.
         """
         "*** YOUR CODE HERE ***"
+        self.balance -= amount
+        self.transactions.append(('withdraw', amount))
+        self._withdraw += 1
+        return self.balance
 
     def __str__(self):
         "*** YOUR CODE HERE ***"
+        return f"{self.holder}'s Balance: ${self.balance}"
 
     def __repr__(self):
         "*** YOUR CODE HERE ***"
+        return f"Accountholder: {self.holder}, Deposits: {self._deposit}, Withdraws: {self._withdraw}"
 
 
 def trade(first, second):
@@ -259,9 +293,9 @@ def trade(first, second):
     """
     m, n = 1, 1
 
-    equal_prefix = lambda: ______________________
-    while _______________________________:
-        if __________________:
+    equal_prefix = lambda: sum(first[: m]) == sum(second[: n])
+    while m <= len(first) and n <= len(second) and not equal_prefix():
+        if sum(first[: m]) < sum(second[: n]):
             m += 1
         else:
             n += 1
@@ -299,11 +333,11 @@ def shuffle(cards):
     ['A♡', 'A♢', 'A♤', 'A♧', '2♡', '2♢', '2♤', '2♧', '3♡', '3♢', '3♤', '3♧']
     """
     assert len(cards) % 2 == 0, 'len(cards) must be even'
-    half = _______________
+    half = int(len(cards) / 2)
     shuffled = []
-    for i in _____________:
-        _________________
-        _________________
+    for i in range(half):
+        shuffled.append(cards[i])
+        shuffled.append(cards[i+half])
     return shuffled
 
 
@@ -328,7 +362,16 @@ def insert(link, value, index):
     IndexError: Out of bounds!
     """
     "*** YOUR CODE HERE ***"
-
+    i = 0
+    while link is not Link.empty:
+        if i == index:
+            link_copy = Link(link.first, link.rest)
+            link.first = value
+            link.rest = link_copy
+            return
+        link = link.rest
+        i += 1
+    raise IndexError('Out of bounds!')
 
 def deep_len(lnk):
     """ Returns the deep length of a possibly deep linked list.
@@ -344,12 +387,12 @@ def deep_len(lnk):
     >>> deep_len(levels)
     5
     """
-    if ______________:
+    if lnk is Link.empty:
         return 0
-    elif ______________:
+    elif isinstance(lnk, int):
         return 1
     else:
-        return _________________________
+        return deep_len(lnk.first) + deep_len(lnk.rest)
 
 
 def make_to_string(front, mid, back, empty_repr):
@@ -367,11 +410,12 @@ def make_to_string(front, mid, back, empty_repr):
     >>> jerrys_to_string(Link.empty)
     '()'
     """
+
     def printer(lnk):
-        if ______________:
-            return _________________________
+        if lnk is Link.empty:
+            return empty_repr
         else:
-            return _________________________
+            return front + str(lnk.first) + mid + printer(lnk.rest) + back
     return printer
 
 
@@ -392,12 +436,11 @@ def prune_small(t, n):
     >>> t3
     Tree(6, [Tree(1), Tree(3, [Tree(1), Tree(2)])])
     """
-    while ___________________________:
-        largest = max(_______________, key=____________________)
-        _________________________
-    for __ in _____________:
-        ___________________
-
+    while len(t.branches) > n:
+        largest = max(t.branches, key=lambda x: x.label)
+        t.branches.remove(largest)
+    for b in t.branches:
+        prune_small(b, n)
 
 def long_paths(t, n):
     """Return a list of all paths in t with length at least n.
@@ -450,6 +493,22 @@ def long_paths(t, n):
     [[0, 11, 12, 13, 14]]
     """
     "*** YOUR CODE HERE ***"
+    # 回溯 剪枝
+    path_list = []
+    def helps(t, path_temp, length):
+        nonlocal path_list
+        if t.is_leaf():
+            path_temp.append(t.label)
+            if length >= n:
+                path_list.append(path_temp)
+            path_temp.pop()
+            return
+        path_temp.append(t.label)
+        for b in t.branches:
+            helps(b, path_temp, length + 1)
+        path_temp.pop()
+    helps(t, [], 0)
+    return path_list
 
 
 class Link:
