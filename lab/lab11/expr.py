@@ -107,6 +107,10 @@ class Name(Expr):
         None
         """
         "*** YOUR CODE HERE ***"
+        try:
+            return env[self.var_name]
+        except:
+            return None
 
 
     def __str__(self):
@@ -174,7 +178,9 @@ class CallExpr(Expr):
         Number(14)
         """
         "*** YOUR CODE HERE ***"
-
+        eval_operator = self.operator.eval(env) # Name对象eval返回PrimitiveFunction对象
+        eval_operands = [operand.eval(env) for operand in self.operands] # 返回Number对象列表
+        return eval_operator.apply(eval_operands) #对PrimitiveFunction对象使用apply方法
 
     def __str__(self):
         function = str(self.operator)
@@ -265,7 +271,7 @@ class LambdaFunction(Value):
     def apply(self, arguments):
         """
         >>> from reader import read
-        >>> add_lambda = read('lambda x, y: add(x, y)').eval(global_env)
+        >>> add_lambda = read('lambda x, y: add(x, y)').eval(global_env) # read返回LambdaExpr对象，结果返回LambdaFunction对象
         >>> add_lambda.apply([Number(1), Number(2)])
         Number(3)
         >>> add_lambda.apply([Number(3), Number(4)])
@@ -284,6 +290,10 @@ class LambdaFunction(Value):
             raise TypeError("Oof! Cannot apply number {} to arguments {}".format(
                 comma_separated(self.parameters), comma_separated(arguments)))
         "*** YOUR CODE HERE ***"
+        new_env = self.parent.copy()
+        new_env.update({parameter: argument for parameter, argument in zip(self.parameters, arguments)}) # 将新的env添加进new_env
+
+        return self.body.eval(new_env)
 
 
     def __str__(self):
